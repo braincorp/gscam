@@ -226,6 +226,11 @@ namespace gscam {
         camera_pub_ = image_transport_.advertiseCamera("image_raw", 1);
     }
 
+    // Optionally delay start of streaming
+    int startup_delay_secs;
+    nh_private_.param("startup_delay_secs", startup_delay_secs, 0);
+    ros::Duration(startup_delay_secs).sleep();
+
     return true;
   }
 
