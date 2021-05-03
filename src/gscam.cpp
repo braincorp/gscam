@@ -226,6 +226,11 @@ namespace gscam {
         camera_pub_ = image_transport_.advertiseCamera("image_raw", 1);
     }
 
+    // Optionally delay start of streaming
+    int startup_delay_secs;
+    nh_private_.param("startup_delay_secs", startup_delay_secs, 0);
+    ros::Duration(startup_delay_secs).sleep();
+
     return true;
   }
 
@@ -269,10 +274,10 @@ namespace gscam {
       // actual capture framerate of the device.
       // ROS_DEBUG("Getting data...");
 #if (GST_VERSION_MAJOR == 1)
-      GstSample* sample = gst_app_sink_pull_sample(GST_APP_SINK(sink_));
+      GstSample* sample = gst_app_sink_try_pull_sample(GST_APP_SINK(sink_), 5 * GST_SECOND);
       if(!sample) {
-        ROS_ERROR("Could not get gstreamer sample.");
-        break;
+        ROS_FATAL("Could not get gstreamer sample. Shutting down node.");
+        ros::shutdown();  // restarted if respawn to True
       }
       GstBuffer* buf = gst_sample_get_buffer(sample);
       GstMemory *memory = gst_buffer_get_memory(buf, 0);
