@@ -277,7 +277,7 @@ namespace gscam {
       GstSample* sample = gst_app_sink_try_pull_sample(GST_APP_SINK(sink_), 5 * GST_SECOND);
       if(!sample) {
         ROS_FATAL("Could not get gstreamer sample. Shutting down node.");
-        ros::shutdown();  // restarted if respawn to True
+        exit(EXIT_FAILURE);  // restarted if respawn to True
       }
       GstBuffer* buf = gst_sample_get_buffer(sample);
       GstMemory *memory = gst_buffer_get_memory(buf, 0);
